@@ -39,7 +39,7 @@ const customReplies = (q) => {
   if (lower.includes("pk-xmd")) return "🔥 PK-XMD is a Multi-Device WhatsApp Bot made by *PKDRILLER*.";
   if (lower.includes("pkdriller")) return "👑 PKDRILLER is the official creator of the *PK-XMD* WhatsApp bot.";
   if (lower.includes("channel")) return "📢 Official channel: https://whatsapp.com/channel/0029VaA8mf6K1nF3IbQzvK3Z";
-  if (lower.includes("repo") || lower.includes("github")) return "🔗 GitHub repo: https://github.com/pkdriller1911/PK-XMD";
+  if (lower.includes("repo") || lower.includes("github")) return "🔗 GitHub repo: https://github.com/mejjar00254/PK-XMD deploy am safe in heroku render panel railway";
   if (lower.includes("date") || lower.includes("today")) return `📅 Today is ${today.format("dddd, MMMM Do YYYY")}`;
   if (lower.includes("day")) return `📆 Today is *${today.format("dddd")}*`;
   return null;
