@@ -55,7 +55,7 @@ cmd({
         thumbnailUrl: menuImage,
         sourceUrl: "https://whatsapp.com/channel/0029VaK6LeW3Rp22D77DmJ0v",
         mediaType: 1,
-        renderLargerThumbnail: true,
+        renderLargerThumbnail: false,
         showAdAttribution: true
       },
       forwardedNewsletterMessageInfo: {
