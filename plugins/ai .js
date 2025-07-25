@@ -22,7 +22,7 @@ const getContextInfo = (title, url, thumb) => ({
     showAdAttribution: true,
     title: title,
     body: "PK-XMD | Multi-Device WhatsApp Bot",
-    thumbnailUrl: thumb || "https://telegra.ph/file/3050269176219cc6e3b8d.jpg",
+    thumbnailUrl: thumb || "https://files.catbox.moe/1daei8.jpg",
     sourceUrl: url || "https://github.com/pkdriller1911/PK-XMD"
   },
   forwardingScore: 999,
