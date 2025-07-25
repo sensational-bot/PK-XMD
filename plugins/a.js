@@ -36,7 +36,7 @@ cmd({
         title: "Quote by PK-XMD",
         body: config.botname,
         thumbnailUrl: config.LOGO,
-        renderLargerThumbnail: true,
+        renderLargerThumbnail: false,
         mediaType: 1,
         sourceUrl: config.channel
       }
