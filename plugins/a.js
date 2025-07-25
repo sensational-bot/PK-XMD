@@ -4,7 +4,7 @@ const config = require('../config');
 
 cmd({
   pattern: "quote",
-  desc: "Get a random inspirational quote",
+  desc: "Get a random inspirational quote with image",
   category: "fun",
   react: "💬",
   filename: __filename
@@ -47,10 +47,19 @@ cmd({
 
     const quoteText = `💭 *"${quote.q}"*\n\n— _${quote.a}_`;
 
-    await conn.sendMessage(from, { text: quoteText, contextInfo }, { quoted: quotedContact });
+    await conn.sendMessage(
+      from,
+      {
+        image: { url: "https://files.catbox.moe/fgiecg.jpg" },
+        caption: quoteText,
+        contextInfo
+      },
+      { quoted: quotedContact }
+    );
 
   } catch (e) {
     console.error(e);
     reply("❌ Error fetching quote.");
   }
 });
+        
