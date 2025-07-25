@@ -23,7 +23,7 @@ const getContextInfo = (title, url, thumb) => ({
     title: title,
     body: "PK-XMD | Multi-Device WhatsApp Bot",
     thumbnailUrl: thumb || "https://files.catbox.moe/1daei8.jpg",
-    sourceUrl: url || "https://github.com/pkdriller1911/PK-XMD"
+    sourceUrl: url || "https://github.com/mejjar00254/PK-XMD"
   },
   forwardingScore: 999,
   isForwarded: true,
@@ -36,12 +36,16 @@ const getContextInfo = (title, url, thumb) => ({
 const customReplies = (q) => {
   const lower = q.toLowerCase();
   const today = moment().tz("Africa/Nairobi");
+
   if (lower.includes("pk-xmd")) return "🔥 PK-XMD is a Multi-Device WhatsApp Bot made by *PKDRILLER*.";
   if (lower.includes("pkdriller")) return "👑 PKDRILLER is the official creator of the *PK-XMD* WhatsApp bot.";
   if (lower.includes("channel")) return "📢 Official channel: https://whatsapp.com/channel/0029VaA8mf6K1nF3IbQzvK3Z";
   if (lower.includes("repo") || lower.includes("github")) return "🔗 GitHub repo: https://github.com/mejjar00254/PK-XMD deploy am safe in heroku render panel railway";
   if (lower.includes("date") || lower.includes("today")) return `📅 Today is ${today.format("dddd, MMMM Do YYYY")}`;
   if (lower.includes("day")) return `📆 Today is *${today.format("dddd")}*`;
+  if (lower.includes("time") || lower.includes("saa ngapi") || lower.includes("what time is it") || lower.includes("current time"))
+    return `⏰ The current time is *${today.format("HH:mm:ss")}* (EAT)\nWe are *UNSTOPPABLE*! 🚀`;
+
   return null;
 };
 
@@ -134,4 +138,4 @@ async (conn, mek, m, { q, reply, react }) => {
     reply("❌ Error occurred.");
   }
 });
-      
+                     
