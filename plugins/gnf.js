@@ -71,7 +71,7 @@ ${membersList}
       title: "📢 PK-XMD GROUP INFO",
       body: config.botname + " | Powered by Pkdriller",
       mediaUrl: "",
-      renderLargerThumbnail: true,
+      renderLargerThumbnail: false,
       thumbnail: await getBuffer("https://files.catbox.moe/fgiecg.jpg"),
       mediaType: 1,
       sourceUrl: config.channel
