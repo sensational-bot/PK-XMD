@@ -10,8 +10,8 @@ function replaceYouTubeID(url) {
 }
 
 cmd({
-    pattern: "play3",
-    alias: ["mp3", "ytmp3"],
+    pattern: "playy",
+    alias: ["mp35", "ytmp53"],
     react: "🎵",
     desc: "Download Ytmp3",
     category: "download",
@@ -44,7 +44,7 @@ cmd({
             `🔽 *Reply with your choice:*\n` +
             `1 *Audio Type* 🎵\n` +
             `2 *Document Type* 📁\n\n` +
-            `${config.FOOTER || "CASEYRHODES-XMD"}`;
+            `${config.FOOTER || "PK-XMD"}`;
 
         const sentMsg = await conn.sendMessage(from, { image: { url: image }, caption: info }, { quoted: mek });
         const messageID = sentMsg.key.id;
