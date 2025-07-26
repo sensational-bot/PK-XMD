@@ -106,66 +106,27 @@ const port = process.env.PORT || 9090;
   console.log('🧬 Installing Plugins')
   const path = require('path');
   fs.readdirSync("./plugins/").forEach((plugin) => {
-    if (path.extname(plugin).toLowerCase() == ".js") {
-      require("./plugins/" + plugin);
-    }
+  if (path.extname(plugin).toLowerCase() == ".js") {
+  require("./plugins/" + plugin);
+  }
   });
   console.log('Plugins installed successful ✅')
   console.log('Bot connected to whatsapp ✅')
+  
+  let up = `╭─〔 *🤍💪 PK-XMD BOT📳📳* 〕  
+├─▸ *Ultra Super Fast Powerfull ⚠️*  
+│     *next generation version bot* 
+╰─➤ *Your Smart WhatsApp Bot by pkdriller*  
 
-  let up = `╭─〔 *🤍💪 PK-XMD BOT📳📳* 〕
-├─▸ *Ultra Super Fast Powerfull ⚠️*
-│     *next generation version bot*
-╰─➤ *Your Smart WhatsApp Bot by pkdriller*
+- *🔮 always choose PK-XMD🔮💯!* 
 
-- *🔮 always choose PK-XMD🔮💯!*
-
-╭──〔 🔗 *Information* 〕
+╭──〔 🔗 *Information* 〕  
 ├─ 🧩 *Prefix:* = ${prefix}
-├─ 📢 *Join Channel:*
-│    https://whatsapp.com/channel/0029Vad7YNyJuyA77CtIPX0x
-├─ 🌟 *MESSAGE DEVELOPER/OWNER +254794146821*
-│     
+├─ 📢 *Join Channel:*  
+│    https://whatsapp.com/channel/0029Vad7YNyJuyA77CtIPX0x 
+├─ 🌟 *MESSAGE DEVELOPER/OWNER+254794146821*
+│     
 ╰─🚀 *Powered by mr pkdriller*`;
-
-  let quoted = {
-    key: {
-      fromMe: false,
-      participant: "0@s.whatsapp.net",
-      remoteJid: "status@broadcast"
-    },
-    message: {
-      contactMessage: {
-        displayName: "WhatsApp Net",
-        vcard: `BEGIN:VCARD\nVERSION:3.0\nFN:WhatsApp Net\nORG:Meta Verified Contact;\nTEL;type=CELL;type=VOICE;waid=120363025535053;+1 (203) 630 2553\nEND:VCARD`,
-        jpegThumbnail: await getBuffer("https://telegra.ph/file/265c67267ec38b07f75c7.jpg")
-      }
-    }
-  }
-
-  conn.sendMessage(conn.user.id, {
-    image: { url: `https://res.cloudinary.com/dtjjgiitl/image/upload/q_auto:good,f_auto,fl_progressive/v1753271440/h4zzcb49vfmaqv5quq4m.jpg` },
-    caption: up,
-    contextInfo: {
-      forwardedNewsletterMessageInfo: {
-        newsletterJid: "120363025535053@newsletter",
-        newsletterName: "WhatsApp Updates",
-        serverMessageId: ""
-      },
-      externalAdReply: {
-        title: "✅ PK-XMD is Back Online!",
-        body: "Your Smart WhatsApp Bot by pkdriller",
-        thumbnailUrl: "https://res.cloudinary.com/dtjjgiitl/image/upload/q_auto:good,f_auto,fl_progressive/v1753271440/h4zzcb49vfmaqv5quq4m.jpg",
-        mediaType: 1,
-        renderLargerThumbnail: true,
-        showAdAttribution: true,
-        sourceUrl: "https://whatsapp.com/channel/0029Vad7YNyJuyA77CtIPX0x"
-      }
-    },
-    quoted
-  })
-  }
-	    
     conn.sendMessage(conn.user.id, { image: { url: `https://res.cloudinary.com/dtjjgiitl/image/upload/q_auto:good,f_auto,fl_progressive/v1753271440/h4zzcb49vfmaqv5quq4m.jpg` }, caption: up })
   }
   })
