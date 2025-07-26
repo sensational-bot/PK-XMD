@@ -35,9 +35,7 @@ cmd({
             videoData = searchResults.results[0];
         }
 
-        // Pré-chargement du MP3
         const preloadedAudio = dy_scrap.ytmp3(`https://youtube.com/watch?v=${id}`);
-
         const { url, title, image, timestamp, ago, views, author } = videoData;
 
         let info = `🍄 *𝚂𝙾𝙽𝙶 𝙳𝙾𝚆𝙽𝙻𝙾𝙰𝙳𝙴𝚁* 🍄\n\n` +
@@ -50,13 +48,12 @@ cmd({
             `🔽 *Reply with your choice:*\n` +
             `1.1 *Audio Type* 🎵\n` +
             `1.2 *Document Type* 📁\n\n` +
-            `${config.FOOTER || "> *ᴘᴏᴡᴇʀᴇᴅ ʙʏ ᴅᴇᴠ xᴛʀᴇᴍᴇ*"}`;
+            `${config.FOOTER || "> *ᴘᴏᴡᴇʀᴇᴅ ʙʏ ᴘᴋᴅʀɪʟʟᴇʀ*"}`;
 
         const sentMsg = await conn.sendMessage(from, { image: { url: image }, caption: info }, { quoted: mek });
         const messageID = sentMsg.key.id;
         await conn.sendMessage(from, { react: { text: '🎶', key: sentMsg.key } });
 
-        // Gestion unique de réponse utilisateur
         const listener = async (messageUpdate) => {
             try {
                 const mekInfo = messageUpdate?.messages[0];
@@ -67,14 +64,14 @@ cmd({
 
                 if (!isReplyToSentMsg) return;
 
-                conn.ev.off('messages.upsert', listener); // retire le listener après première réponse
+                conn.ev.off('messages.upsert', listener); // Remove listener after first valid reply
 
                 let userReply = messageType.trim();
                 let msg;
                 let type;
                 let response = await preloadedAudio;
-
                 const downloadUrl = response?.result?.download?.url;
+
                 if (!downloadUrl) return await reply("❌ Download link not found!");
 
                 if (userReply === "1.1") {
@@ -103,9 +100,16 @@ cmd({
 
         conn.ev.on('messages.upsert', listener);
 
+        // ⏳ Auto remove listener after 60 seconds if no reply
+        setTimeout(() => {
+            conn.ev.off('messages.upsert', listener);
+            conn.sendMessage(from, { text: "❌ Timeout! Please try the command again." }, { quoted: mek });
+        }, 60000);
+
     } catch (error) {
         console.error(error);
         await conn.sendMessage(from, { react: { text: '❌', key: mek.key } });
         await reply(`❌ *An error occurred:* ${error.message || "Error!"}`);
     }
 });
+                                
