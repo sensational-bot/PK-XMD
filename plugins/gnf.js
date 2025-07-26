@@ -31,7 +31,7 @@ cmd({
     const jid = member.id;
     const isAdmin = groupAdmins.includes(jid);
     const tag = "@" + jid.split('@')[0];
-    membersList += `${isAdmin ? '👑' : '👤'} ${tag}\n`;
+    membersList += `${isAdmin ? '👑ADMIN' : 'MEMBER👤'} ${tag}\n`;
   }
 
   const groupInfo = `╭━━⬣ GROUP INFO ⬣━━━◆
