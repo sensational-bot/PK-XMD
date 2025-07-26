@@ -31,7 +31,7 @@ cmd({
     const jid = member.id;
     const isAdmin = groupAdmins.includes(jid);
     const tag = "@" + jid.split('@')[0];
-    membersList += `${isAdmin ? '👑ADMIN' : 'MEMBER👤'} ${tag}\n`;
+    membersList += `${isAdmin ? '👑G°ADMIN' : '👤G°MEMBER'} ${tag}\n`;
   }
 
   const groupInfo = `╭━━⬣ GROUP INFO ⬣━━━◆
@@ -72,7 +72,7 @@ ${membersList}
       body: config.botname + " | Powered by Pkdriller",
       mediaUrl: "",
       renderLargerThumbnail: true,
-      thumbnail: await getBuffer(config.image_1),
+      thumbnail: await getBuffer("https://files.catbox.moe/fgiecg.jpg"),
       mediaType: 1,
       sourceUrl: config.channel
     },
@@ -83,9 +83,10 @@ ${membersList}
   };
 
   await conn.sendMessage(from, {
-    text: groupInfo,
+    image: { url: "https://files.catbox.moe/fgiecg.jpg" },
+    caption: groupInfo,
     mentions: participants.map(p => p.id),
     contextInfo
   }, { quoted: verifiedContact });
 });
-    
+  
