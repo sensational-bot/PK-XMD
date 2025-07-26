@@ -1,59 +1,77 @@
 const { cmd } = require('../command');
-const config = require('../config');
-const moment = require('moment-timezone');
+const config = require("../config");
+const { getBuffer, runtime, fetchJson } = require("../lib/functions");
+const fs = require("fs");
+const moment = require("moment-timezone");
 
 cmd({
-  pattern: "ginfo",
-  alias: ["groupinfo", "pkinfo"],
-  desc: "Displays full group information including members and roles.",
+  pattern: "pinfo",
+  desc: "Show group info",
   category: "group",
-  use: '.ginfo',
   filename: __filename
-}, async (conn, m, text, { groupMetadata, participants, isBotAdmin, isAdmin, isGroup, sender, from, args, prefix, pushName, quoted, mime, body }) => {
+}, async (conn, m, { isGroup, groupMetadata, participants, admins, groupName, pushName, prefix }) => {
+  if (!isGroup) return m.reply("This command only works in groups.");
+
   try {
-    if (!isGroup) return m.reply("*❌ This command is only for group chats.*");
+    const groupId = m.chat;
+    const metadata = await conn.groupMetadata(groupId);
+    const ppUrl = await conn.profilePictureUrl(groupId, 'image').catch(() => config.LOGO);
+    const owner = metadata.owner ? metadata.owner : metadata.participants.find(p => p.admin === 'superadmin')?.id;
 
-    const group = groupMetadata || await conn.groupMetadata(from);
-    const ownerId = group.owner ? group.owner : group.participants.find(p => p.admin === 'superadmin')?.id;
-    const groupAdmins = group.participants.filter(p => p.admin);
-    const creationTime = moment(group.creation * 1000).tz('Africa/Nairobi').format('MMMM Do YYYY, h:mm:ss A');
-    const ppUrl = await conn.profilePictureUrl(from, 'image').catch(() => config.img);
+    const groupAdmins = metadata.participants.filter(p => p.admin);
+    const members = metadata.participants;
 
-    // Format participants
-    const membersFormatted = group.participants.map(p => {
-      const num = p.id.split('@')[0];
-      const role = p.admin === 'admin' ? '🛡️ Admin' : p.admin === 'superadmin' ? '👑 Owner' : '👤 Member';
-      return `• wa.me/${num} – ${role}`;
-    }).join('\n');
+    const creationTime = moment(metadata.creation * 1000).tz("Africa/Nairobi");
+    const timeAgo = creationTime.fromNow();
 
-    let caption = `┏━━━━━━━⊷\n`;
-    caption += `┃  *📛 Group Info*\n`;
-    caption += `┗━━━━━━━⊷\n\n`;
-    caption += `👥 *Name:* ${group.subject}\n`;
-    caption += `🔐 *ID:* ${from}\n`;
-    caption += `📝 *Desc:* ${group.desc?.toString().split('\n')[0] || 'Not available'}\n`;
-    caption += `👑 *Owner:* wa.me/${ownerId?.split('@')[0] || 'N/A'}\n`;
-    caption += `👤 *Members:* ${group.participants.length}\n`;
-    caption += `📅 *Created:* ${creationTime}\n`;
-    caption += `\n╭─── *👨‍👩‍👧‍👦 Group Members:*\n`;
-    caption += membersFormatted;
-    caption += `\n╰─────────────⧼⧽`;
+    // Admins List
+    const adminList = groupAdmins.map(p => {
+      const name = metadata.participants.find(x => x.id === p.id)?.notify || conn.getName(p.id);
+      return `• @${p.id.split("@")[0]} (${p.admin === 'superadmin' ? 'Owner' : 'Admin'})`;
+    }).join("\n");
 
-    await conn.sendMessage(from, {
+    // Members List
+    const memberList = members.map(p => {
+      const role = p.admin ? (p.admin === 'superadmin' ? "Owner" : "Admin") : "Member";
+      return `• @${p.id.split("@")[0]} (${role})`;
+    }).join("\n");
+
+    const ginfo = `🌐 *GROUP INFORMATION*
+
+📛 *Name:* ${metadata.subject}
+🆔 *ID:* ${metadata.id}
+👤 *Owner:* wa.me/${owner.split("@")[0]}
+👥 *Members:* ${members.length}
+🛡️ *Admins:* ${groupAdmins.length}
+📅 *Created On:* ${creationTime.format("DD MMMM YYYY, HH:mm:ss")} (${timeAgo})
+📝 *Description:* ${metadata.desc ? metadata.desc : "No description set."}
+🔒 *Settings:*
+  - Announce: ${metadata.announce ? "✅ Only Admins can send" : "❌ All members can send"}
+  - Locked: ${metadata.restrict ? "✅ Only Admins can edit info" : "❌ All members can edit"}
+
+👑 *ADMINS LIST:*
+${adminList}
+
+👤 *ALL MEMBERS:*
+${memberList}
+
+🔗 *Powered by Pkdriller | PK-XMD Bot*
+`;
+
+    await conn.sendMessage(m.chat, {
       image: { url: ppUrl },
-      caption: caption,
-      mentions: group.participants.map(v => v.id),
+      caption: ginfo,
+      mentions: participants.map(p => p.id),
       contextInfo: {
         forwardingScore: 999,
         isForwarded: true,
         externalAdReply: {
-          title: "Group Info Tool • PK-XMD",
-          body: "Powered by Pkdriller",
+          title: "Group Info • PK-XMD",
+          body: "PK-XMD by Pkdriller",
           thumbnailUrl: ppUrl,
           mediaType: 1,
-          previewType: "PHOTO",
-          sourceUrl: "https://whatsapp.com/channel/0029Vad7YNyJuyA77CtIPX0x",
-          renderLargerThumbnail: false
+          renderLargerThumbnail: false,
+          sourceUrl: "https://whatsapp.com/channel/0029Vad7YNyJuyA77CtIPX0x"
         },
         forwardedNewsletterMessageInfo: {
           newsletterJid: "120363288304618280@newsletter",
@@ -61,9 +79,25 @@ cmd({
           serverMessageId: "100"
         }
       }
-    }, { quoted: m });
+    }, {
+      quoted: {
+        key: {
+          fromMe: false,
+          participant: "0@s.whatsapp.net",
+          remoteJid: "status@broadcast"
+        },
+        message: {
+          contactMessage: {
+            displayName: "WhatsApp",
+            vcard: "BEGIN:VCARD\nVERSION:3.0\nFN:WhatsApp\nORG:WhatsApp\nTEL;type=CELL;type=VOICE;waid=14155238886:+1 415-523-8886\nEND:VCARD"
+          }
+        }
+      }
+    });
+
   } catch (e) {
     console.error(e);
-    return m.reply("*❌ Error while fetching group info. Make sure I'm an admin and try again.*");
+    m.reply("❌ Failed to fetch group info.");
   }
 });
+        
