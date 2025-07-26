@@ -50,7 +50,7 @@ cmd({
           thumbnailUrl: ppUrl,
           mediaType: 1,
           previewType: "PHOTO",
-          renderLargerThumbnail: true,
+          renderLargerThumbnail: false,
           sourceUrl: "https://whatsapp.com/channel/0029Vad7YNyJuyA77CtIPX0x"
         },
         forwardedNewsletterMessageInfo: {
