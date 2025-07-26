@@ -4,7 +4,7 @@ const config = require('../config')
 let antimention = {}
 
 cmd({
-  pattern: "antimention ?(on|off)?",
+  pattern: "antimention",
   desc: "Anti-Mention system",
   category: "Group",
   filename: __filename,
