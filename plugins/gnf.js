@@ -1,71 +1,69 @@
-const { cmd } = require('../command')
-const config = require('../config')
-const moment = require('moment-timezone')
-const fs = require('fs')
+const { cmd } = require('../command');
+const config = require('../config');
+const moment = require('moment-timezone');
 
 cmd({
-  pattern: "pkinfo",
-  desc: "Group information with member details",
+  pattern: "ginfo",
+  alias: ["groupinfo", "pkinfo"],
+  desc: "Displays full group information including members and roles.",
   category: "group",
   use: '.ginfo',
   filename: __filename
-}, async(conn, m, { isAdmin, isBotAdmin, groupMetadata, participants, args, text, prefix, command }) => {
-  if (!m.isGroup) return m.reply("This command can only be used in groups!")
-
-  let groupInfo = groupMetadata
-  let owner = groupInfo.owner ? groupInfo.owner.split("@")[0] : "Unknown"
-  let groupAdmins = participants.filter(p => p.admin)
-  let adminJids = groupAdmins.map(p => p.id)
-  let memberList = participants.map((p, i) => {
-    const role = p.admin ? '👑 Admin' : '👤 Member'
-    const number = p.id.split('@')[0]
-    return `${i + 1}. wa.me/${number} — ${role}`
-  }).join("\n")
-
-  let groupCreation = groupInfo.creation ? moment(groupInfo.creation * 1000).tz(config.TIME_ZONE).format('dddd, MMMM Do YYYY (h:mm:ss A)') : 'Unknown'
-
-  let caption = `╭────[ *📛 GROUP INFO* ]──◇
-│🌐 *Name:* ${groupInfo.subject}
-│🆔 *ID:* ${groupInfo.id}
-│👑 *Owner:* wa.me/${owner}
-│👥 *Members:* ${participants.length}
-│🛡️ *Admins:* ${groupAdmins.length}
-│📆 *Created On:* ${groupCreation}
-│💬 *Desc:* ${groupInfo.desc ? groupInfo.desc : "No description"}
-╰────◇
-
-╭───[ 👤 *GROUP PARTICIPANTS* ]──◇
-${memberList}
-╰────◇
-
-©️ *PK-XMD Engine*\n*Powered by Pkdriller*`
-
-  let ppUrl = 'https://files.catbox.moe/fgiecg.jpg'
+}, async (conn, m, text, { groupMetadata, participants, isBotAdmin, isAdmin, isGroup, sender, from, args, prefix, pushName, quoted, mime, body }) => {
   try {
-    ppUrl = await conn.profilePictureUrl(m.chat, 'image')
-  } catch {}
+    if (!isGroup) return m.reply("*❌ This command is only for group chats.*");
 
-  await conn.sendMessage(m.chat, {
-    image: { url: ppUrl },
-    caption,
-    mentions: participants.map(p => p.id),
-    contextInfo: {
-      forwardingScore: 999,
-      isForwarded: true,
-      externalAdReply: {
-        title: "Group Info • PK-XMD",
-        body: "Tap to join our official channel",
-        thumbnailUrl: ppUrl,
-        mediaType: 1,
-        previewType: "PHOTO",
-        renderLargerThumbnail: false,
-        sourceUrl: "https://whatsapp.com/channel/0029Vad7YNyJuyA77CtIPX0x"
-      },
-      forwardedNewsletterMessageInfo: {
-        newsletterJid: "120363288304618280@newsletter",
-        newsletterName: "PK-XMD Channel",
-        serverMessageId: "100"
+    const group = groupMetadata || await conn.groupMetadata(from);
+    const ownerId = group.owner ? group.owner : group.participants.find(p => p.admin === 'superadmin')?.id;
+    const groupAdmins = group.participants.filter(p => p.admin);
+    const creationTime = moment(group.creation * 1000).tz('Africa/Nairobi').format('MMMM Do YYYY, h:mm:ss A');
+    const ppUrl = await conn.profilePictureUrl(from, 'image').catch(() => config.img);
+
+    // Format participants
+    const membersFormatted = group.participants.map(p => {
+      const num = p.id.split('@')[0];
+      const role = p.admin === 'admin' ? '🛡️ Admin' : p.admin === 'superadmin' ? '👑 Owner' : '👤 Member';
+      return `• wa.me/${num} – ${role}`;
+    }).join('\n');
+
+    let caption = `┏━━━━━━━⊷\n`;
+    caption += `┃  *📛 Group Info*\n`;
+    caption += `┗━━━━━━━⊷\n\n`;
+    caption += `👥 *Name:* ${group.subject}\n`;
+    caption += `🔐 *ID:* ${from}\n`;
+    caption += `📝 *Desc:* ${group.desc?.toString().split('\n')[0] || 'Not available'}\n`;
+    caption += `👑 *Owner:* wa.me/${ownerId?.split('@')[0] || 'N/A'}\n`;
+    caption += `👤 *Members:* ${group.participants.length}\n`;
+    caption += `📅 *Created:* ${creationTime}\n`;
+    caption += `\n╭─── *👨‍👩‍👧‍👦 Group Members:*\n`;
+    caption += membersFormatted;
+    caption += `\n╰─────────────⧼⧽`;
+
+    await conn.sendMessage(from, {
+      image: { url: ppUrl },
+      caption: caption,
+      mentions: group.participants.map(v => v.id),
+      contextInfo: {
+        forwardingScore: 999,
+        isForwarded: true,
+        externalAdReply: {
+          title: "Group Info Tool • PK-XMD",
+          body: "Powered by Pkdriller",
+          thumbnailUrl: ppUrl,
+          mediaType: 1,
+          previewType: "PHOTO",
+          sourceUrl: "https://whatsapp.com/channel/0029Vad7YNyJuyA77CtIPX0x",
+          renderLargerThumbnail: false
+        },
+        forwardedNewsletterMessageInfo: {
+          newsletterJid: "120363288304618280@newsletter",
+          newsletterName: "PK-XMD Channel",
+          serverMessageId: "100"
+        }
       }
-    }
-  }, { quoted: m })
-})
+    }, { quoted: m });
+  } catch (e) {
+    console.error(e);
+    return m.reply("*❌ Error while fetching group info. Make sure I'm an admin and try again.*");
+  }
+});
