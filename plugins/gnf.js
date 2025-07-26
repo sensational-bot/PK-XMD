@@ -4,7 +4,7 @@ const moment = require('moment-timezone')
 const fs = require('fs')
 
 cmd({
-  pattern: "gnfo|pkinfo",
+  pattern: "pkinfo",
   desc: "Group information with member details",
   category: "group",
   use: '.ginfo',
