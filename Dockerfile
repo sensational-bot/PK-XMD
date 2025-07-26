@@ -1,18 +1,7 @@
-# Use an official Node.js runtime base image
-FROM node:20-alpine
-
-# Set working directory in the container
-WORKDIR /app
-
-# Copy package files and install dependencies
-COPY package*.json ./
-RUN npm install
-
-# Copy all source code
+FROM node:lts-buster
+RUN git clone https://github.com/mejjar00254/PK-XMD/root/JawadIK
+WORKDIR /root/JawadIK
+RUN npm install && npm install -g pm2 || yarn install --network-concurrency 1
 COPY . .
-
-# Optional: expose port if you're using an Express API
-EXPOSE 3000
-
-# Define the command to run your bot
-CMD ["node", "index.js"]
+EXPOSE 9090
+CMD ["npm", "start"]
