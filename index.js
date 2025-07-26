@@ -30,6 +30,7 @@ const {
   const P = require('pino')
   const config = require('./config')
   const GroupEvents = require('./lib/groupevents');
+  const antiCall = require('./lib/anticall');
   const qrcode = require('qrcode-terminal')
   const StickersTypes = require('wa-sticker-formatter')
   const util = require('util')
@@ -158,6 +159,11 @@ const port = process.env.PORT || 9090;
   if (config.READ_MESSAGE === 'true') {
     await conn.readMessages([mek.key]);  // Mark message as read
     console.log(`Marked message from ${mek.key.remoteJid} as read.`);
+
+conn.ev.on('call', async (call) => {
+  await antiCall(conn, call);
+});
+	  
   }
     if(mek.message.viewOnceMessageV2)
     mek.message = (getContentType(mek.message) === 'ephemeralMessage') ? mek.message.ephemeralMessage.message : mek.message
