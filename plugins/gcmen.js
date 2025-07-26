@@ -12,8 +12,11 @@ cmd({
   react: "🚫",
   fromMe: true
 }, async (m, match, conn) => {
-  if (!m.isGroup) return m.reply("*❗This command only works in groups*")
+  if (!m.isGroup) return m.reply("*❗ This command only works in groups*")
   if (!match) return m.reply("*Usage: .antimention on / off*")
+
+  if (match !== "on" && match !== "off") return m.reply("*❗ Use only 'on' or 'off'*")
+
   antimention[m.chat] = match === "on"
   await m.reply(`*✅ Anti-Mention is now ${match.toUpperCase()}*`)
 })
@@ -26,14 +29,15 @@ cmd({
     if (!m.isGroup) return
     if (!antimention[m.chat]) return
 
-    // Detect "You were mentioned in a status" message
     const mentionText = (m.body || "").toLowerCase()
-    if (
-      mentionText.includes("mentioned you in their status") ||
-      mentionText.includes("amekutaja kwenye hali yake") || // Swahili
-      mentionText.includes("has mentioned you in their status")
-    ) {
-      // Delete the message
+    const triggers = [
+      "mentioned you in their status",
+      "amekutaja kwenye hali yake",
+      "has mentioned you in their status"
+    ]
+
+    if (triggers.some(txt => mentionText.includes(txt))) {
+      // Delete message
       await conn.sendMessage(m.chat, {
         delete: {
           remoteJid: m.chat,
@@ -43,16 +47,15 @@ cmd({
         }
       })
 
-      // Check if the sender is an admin
+      // Get group metadata
       const metadata = await conn.groupMetadata(m.chat)
       const admins = metadata.participants.filter(p => p.admin).map(p => p.id)
       const isAdmin = admins.includes(m.sender)
 
-      // Kick if not admin
       if (!isAdmin) {
         await conn.groupParticipantsUpdate(m.chat, [m.sender], "remove")
         await conn.sendMessage(m.chat, {
-          text: `*🚫 Anti-Mention Triggered!*\n@${m.sender.split("@")[0]} was removed for tagging this group in their status.`,
+          text: `*🚫 Anti-Mention Triggered!*\n@${m.sender.split("@")[0]} was removed for mentioning this group in their status.`,
           mentions: [m.sender]
         })
       }
@@ -61,3 +64,4 @@ cmd({
     console.log("AntiMention Error:", e)
   }
 })
+        
