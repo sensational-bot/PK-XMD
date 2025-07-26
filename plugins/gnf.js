@@ -1,43 +1,34 @@
-const config = require('../config')
-const { cmd } = require('../command')
-const { getBuffer } = require('../lib/functions')
+const { cmd } = require('../command');
+const { fetchJson, getGroupAdmins } = require('../lib/functions');
 
 cmd({
-  pattern: "pkinfo",
-  react: "♻️",
-  alias: ["groupinfo"],
-  desc: "Get group information.",
+  pattern: "ginfo",
+  alias: ["groupinfo", "pkinfo"],
+  desc: "Show group information",
   category: "group",
-  use: '.ginfo',
+  use: '<optional>',
   filename: __filename
-}, async (conn, mek, m, {
-  from, isGroup, isAdmins, isDev, isBotAdmins,
-  reply, participants
-}) => {
+}, async (conn, m, text, { args, prefix, command }) => {
   try {
-    if (!isGroup) return reply(`❌ This command only works in group chats.`);
-    if (!isAdmins && !isDev) return reply(`⛔ Only *Group Admins* or *Bot Dev* can use this.`);
-    if (!isBotAdmins) return reply(`❌ I need *admin* rights to fetch group details.`);
+    const groupMetadata = m.isGroup ? await conn.groupMetadata(m.chat) : {};
+    const groupName = groupMetadata.subject || "N/A";
+    const groupDesc = groupMetadata.desc || "No Description";
+    const participants = groupMetadata.participants || [];
+    const groupAdmins = getGroupAdmins(participants);
+    const owner = groupMetadata.owner ? groupMetadata.owner.split("@")[0] : "Unknown";
+    const ppUrl = await conn.profilePictureUrl(m.chat, 'image').catch(_ => "https://i.ibb.co/2t2pF9y/default.jpg");
 
-    const fallbackPpUrls = [
-      'https://i.ibb.co/KhYC4FY/1221bc0bdd2354b42b293317ff2adbcf-icon.png',
-      'https://i.ibb.co/KhYC4FY/1221bc0bdd2354b42b293317ff2adbcf-icon.png'
-    ];
-    let ppUrl;
-    try {
-      ppUrl = await conn.profilePictureUrl(from, 'image');
-    } catch {
-      ppUrl = fallbackPpUrls[Math.floor(Math.random() * fallbackPpUrls.length)];
-    }
+    const gdata = `╭━━━〈  *PK-XMD GROUP INFO*  〉━━━╮
+┃ 🏷️ *Name:* ${groupName}
+┃ 🧩 *ID:* ${m.chat}
+┃ 👥 *Members:* ${participants.length}
+┃ 👮 *Admins:* ${groupAdmins.length}
+┃ 👑 *Owner:* @${owner}
+┃ 🗒️ *Desc:* 
+┃ ${groupDesc}
+╰━━━━━━━━━━━━━━━━━━━━━━╯`;
 
-    const metadata = await conn.groupMetadata(from);
-    const groupAdmins = participants.filter(p => p.admin);
-    const listAdmin = groupAdmins.map((v, i) => `${i + 1}. @${v.id.split('@')[0]}`).join('\n');
-    const owner = metadata.owner || groupAdmins[0]?.id || "unknown";
-
-    const gdata = `╭─❏ *GROUP INFORMATION*\n│\n│ 📛 *Name:* ${metadata.subject}\n│ 🆔 *ID:* ${metadata.id}\n│ 👥 *Members:* ${metadata.size}\n│ 👑 *Creator:* @${owner.split('@')[0]}\n│ 📝 *Description:* ${metadata.desc || 'No description'}\n│\n│ 🛡️ *Admins (${groupAdmins.length}):*\n│ ${listAdmin.replace(/\n/g, '\n│ ')}\n╰─────────────⭓\n\n_Powered by Pkdriller • PK-XMD_`;
-
-    await conn.sendMessage(from, {
+    await conn.sendMessage(m.chat, {
       image: { url: ppUrl },
       caption: gdata,
       mentions: groupAdmins.map(v => v.id).concat([owner]),
@@ -59,25 +50,10 @@ cmd({
           serverMessageId: "100"
         }
       }
-    }, {
-      quoted: {
-        key: {
-          fromMe: false,
-          participant: "0@s.whatsapp.net",
-          remoteJid: "status@broadcast"
-        },
-        message: {
-          contactMessage: {
-            displayName: "WhatsApp",
-            vcard: "BEGIN:VCARD\nVERSION:3.0\nFN:WhatsApp\nORG:WhatsApp\nTEL;type=CELL;type=VOICE;waid=14155238886:+1 415-523-8886\nEND:VCARD"
-          }
-        }
-      }
-    });
-
+    }, { quoted: m });
   } catch (e) {
     console.error(e);
-    await conn.sendMessage(from, { react: { text: '❌', key: mek.key } });
-    reply(`❌ An error occurred:\n\n${e}`);
+    return m.reply("❌ Failed to fetch group info.");
   }
 });
+          
