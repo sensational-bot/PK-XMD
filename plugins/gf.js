@@ -3,7 +3,7 @@ const { getBuffer } = require('../lib/functions');
 const moment = require('moment-timezone');
 
 cmd({
-  pattern: "groupinfo",
+  pattern: "pkinfo",
   alias: ["ginfo"],
   desc: "Show detailed group info",
   category: "group",
